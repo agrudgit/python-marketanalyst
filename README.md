@@ -1,29 +1,35 @@
-Requirement:
+## requirement
 
 This library requires greater than 3.6 version of python.
 
-Installment:
+## Installment:
 First install marketanalyst package from pip so do
-
+```bash
 pip install marketanalyst
 python -m pip install marketanalyst
-
+```
 This will download the package itself and dependencies that is uses.
 
-How to use:
+## How to use:
 
-Import the package.
+```python
 import marketanalyst
+```
 Make a client which can be used to call all the other methods.
-	client = marketanalyst.client("your api key","your secret key")
+```python
+client = marketanalyst.client("your api key","your secret key")
+```
 The client is ready to use, it can be used to call the below methods.
 
-Methods:
+## Methods:
 
 All of these methods will return either a string with error message or a dataframe as a success
-Getallsecurities:
+1) Getallsecurities:
+```python
 df = client.Getallsecurities()
+```
 This will return a dataframe like this:
+```bash
           id      title
 0      71877  AMEX:AAAU
 1      71878  AMEX:AADR
@@ -38,12 +44,16 @@ This will return a dataframe like this:
 20635  56935    TSX:ZNC
 
 [20636 rows x 2 columns]
+```
 
 Here title is the name of security and id represents the database id that was assigned to this security.
 
-getallcategory:
+2) getallcategory:
+```python
 df = client.getallcategory()
-return:
+```
+This will return a dataframe like this:
+```bash
    id            title
 0   1      Commodities
 1   2       Currencies
@@ -54,15 +64,21 @@ return:
 6  29   Singapore REIT
 7   4      US Equities
 8  26         USA ETF 
-getallsubcategory:
+```
+3) getallsubcategory:
+```python
 df = client.getallsubcategory("Commodities")
-Return:
+```
+This will return a dataframe like this:
     id  title
 0  464  COMEX
 1  463  NYMEX
-getallportfolio:
+4) getallportfolio:
+```python
 df = client.getallportfolio()
-return:
+```
+This will return a dataframe like this:
+```bash
       id                    title
 0   8003                   DOW 30
 1   8008                    FAANG
@@ -74,34 +90,44 @@ return:
 7   8002                  S&P 400
 8   8001                  S&P 500
 9   8009    Warren Buffett Stocks
+```
 
 
 
 
 
-
-getallindicator:
+5) getallindicator:
+```python
 df = client.getallindicator()
-Return:
+```
+This will return a dataframe like this:
 
-
+```bash
   id        title
 0  1        Price
 1  2    Technical
 2  3  Fundamental
 3  4   Financials
+```
 
-getallsubindicator:
+6) getallsubindicator:
+```python
 df = client.getallsubindicator("Price")
-Return:
+```
+This will return a dataframe like this:
+```bash
   id      title
 0  1        EOD
 1  2  Analytics
+```
 
-getdata:
+7) getdata:
+```python
 df = client.getdata(["NASDAQ:AAPL"],"01/01/2012","01/01/2019","Price","EOD")
-Return:
-            e              s                      i                              v            d
+```
+This will return a dataframe like this:
+```bash
+         e      s          i                v         d
 0      NASDAQ  AAPL  D_EODCLOSE_EXT_1     58.75  2012-01-03
 1      NASDAQ  AAPL  D_EODCLOSE_EXT_1     59.06  2012-01-04
 2      NASDAQ  AAPL  D_EODCLOSE_EXT_1     59.72  2012-01-05
@@ -115,16 +141,20 @@ Return:
 17594  NASDAQ  MSFT    D_EODVOL_EXT_1  33173700  2018-12-31
 
 [17595 rows x 5 columns]
+```
 
-
-
-getOHLCVData:
+8) getOHLCVData:
+```python
 df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"01/01/2012","01/01/2019")
+```
 OR 
+```python
 df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"01/01/2012","01/01/2019","EOD")
+```
 You can provide sub indicator type like this.
-Return:
-        datetime      exchange  security    open     low     high     close     volume
+This will return a dataframe like this:
+```bash
+        datetime   exchange  security open   low     high    close   volume
 0     2012-01-03   NASDAQ     AAPL   58.49   58.43   58.93   58.75  75564699
 1     2012-01-04   NASDAQ     AAPL   58.57   58.47   59.24   59.06  65061108
 2     2012-01-05   NASDAQ     AAPL   59.28   58.95   59.79   59.72  67816805
@@ -138,9 +168,12 @@ Return:
 3518  2018-12-31   NASDAQ     MSFT  101.29  100.44   102.4  101.57  33173700
 
 [3519 rows x 8 columns]
-export_df:
+```
+9) export_df:
 With this method you can export a dataframe to a csv or excel.
+```python
 client.export_df(df,'excel',r"D:\some_folder\filename")
+```
 This example is for windows.
 
 
