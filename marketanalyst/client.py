@@ -249,7 +249,7 @@ class client:
 
     def getOHLCVData(self,security_exchange,start_date,end_date,sub_indicator_type="EOD"):
         df = self.getdata(security_exchange,start_date,end_date,"Price",sub_indicator_type)
-        return_df = pd.DataFrame(columns = ['datetime','exchange','security','open','low','high','close','volume'])
+        return_df = pd.DataFrame(columns = ['date','exchange','security','open','high','low','close','volume'])
         for group_name, group_df in df.groupby("s"):
             ticker_df = group_df.copy()
             for ticker_group_name, ticker_group_df in ticker_df.groupby("d"):
@@ -279,7 +279,7 @@ class client:
                     close_value = close_price["v"].unique()[0]
                 else:
                     close_value = np.nan
-                return_entry = [datetime_df['d'].unique()[0],datetime_df['e'].unique()[0],datetime_df['s'].unique()[0],open_value,low_value,high_value,close_value,volume_value]
+                return_entry = [datetime_df['d'].unique()[0],datetime_df['e'].unique()[0],datetime_df['s'].unique()[0],open_value,high_value,low_value,close_value,volume_value]
                 return_df.loc[len(return_df)] = return_entry
         return return_df
 
