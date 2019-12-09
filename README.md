@@ -70,9 +70,11 @@ This will return a dataframe like this:
 df = client.getallsubcategory("Commodities")
 ```
 This will return a dataframe like this:
+```bash
     id  title
 0  464  COMEX
 1  463  NYMEX
+```
 4) getallportfolio:
 ```python
 df = client.getallportfolio()
