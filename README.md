@@ -178,4 +178,11 @@ client.export_df(df,'excel',r"D:\some_folder\filename")
 ```
 This example is for windows.
 
+## websocket 
+```python
+def receive_data(data):
+    print(data)
 
+client.onDataEvent("NASDAQ:AAPL",receive_data)
+```
+receive_data will recieve the data from socket
