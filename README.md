@@ -94,13 +94,9 @@ This will return a dataframe like this:
 9   8009    Warren Buffett Stocks
 ```
 
-
-
-
-
-5) getallindicator:
+5) getallindicatorcategory:
 ```python
-df = client.getallindicator()
+df = client.getallindicatorcategory()
 ```
 This will return a dataframe like this:
 
@@ -112,9 +108,9 @@ This will return a dataframe like this:
 3  4   Financials
 ```
 
-6) getallsubindicator:
+6) getallindicatorsubcategory:
 ```python
-df = client.getallsubindicator("Price")
+df = client.getallindicatorsubcategory("Price")
 ```
 This will return a dataframe like this:
 ```bash
@@ -156,18 +152,18 @@ df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"01/01/2012","01/01/2019"
 You can provide sub indicator type like this.
 This will return a dataframe like this:
 ```bash
-        datetime   exchange  security open   low     high    close   volume
-0     2012-01-03   NASDAQ     AAPL   58.49   58.43   58.93   58.75  75564699
-1     2012-01-04   NASDAQ     AAPL   58.57   58.47   59.24   59.06  65061108
-2     2012-01-05   NASDAQ     AAPL   59.28   58.95   59.79   59.72  67816805
-3     2012-01-06   NASDAQ     AAPL   59.97   59.89   60.39   60.34  79596412
-4     2012-01-09   NASDAQ     AAPL   60.79   60.19   61.11   60.25  98505792
+        date      exchange  security open    high    low     close   volume
+0     2012-01-03   NASDAQ     AAPL   58.49   58.93   58.43   58.75  75564699
+1     2012-01-04   NASDAQ     AAPL   58.57   59.24   58.47   59.06  65061108
+2     2012-01-05   NASDAQ     AAPL   59.28   59.79   58.95   59.72  67816805
+3     2012-01-06   NASDAQ     AAPL   59.97   60.39   59.89   60.34  79596412
+4     2012-01-09   NASDAQ     AAPL   60.79   61.11   60.19   60.25  98505792
 ...          ...      ...      ...     ...     ...     ...     ...       ...
-3514  2018-12-24   NASDAQ     MSFT   97.68   93.98   97.97   94.13  43935100
-3515  2018-12-26   NASDAQ     MSFT   95.14   93.96  100.69  100.56  51634700
-3516  2018-12-27   NASDAQ     MSFT    99.3    96.4  101.19  101.18  49498500
-3517  2018-12-28   NASDAQ     MSFT  102.09   99.52  102.41  100.39  38169300
-3518  2018-12-31   NASDAQ     MSFT  101.29  100.44   102.4  101.57  33173700
+3514  2018-12-24   NASDAQ     MSFT   97.68   97.97   93.98   94.13  43935100
+3515  2018-12-26   NASDAQ     MSFT   95.14  100.69   93.96  100.56  51634700
+3516  2018-12-27   NASDAQ     MSFT    99.3  101.19    96.4  101.18  49498500
+3517  2018-12-28   NASDAQ     MSFT  102.09  102.41   99.52  100.39  38169300
+3518  2018-12-31   NASDAQ     MSFT  101.29   102.4  100.44  101.57  33173700
 
 [3519 rows x 8 columns]
 ```
@@ -177,12 +173,13 @@ With this method you can export a dataframe to a csv or excel.
 client.export_df(df,'excel',r"D:\some_folder\filename")
 ```
 This example is for windows.
+For now three formats are supported json,excel,csv.
 
 ## websocket 
 ```python
 def receive_data(data):
     print(data)
 
-client.onDataEvent("NASDAQ:AAPL",receive_data)
+client.onDataEvent("nasdaq-aapl",receive_data)
 ```
-receive_data will recieve the data from socket
+receive_data will recieve the data from socket and it will be a string
