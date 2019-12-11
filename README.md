@@ -65,9 +65,9 @@ This will return a dataframe like this:
 7   4      US Equities
 8  26         USA ETF 
 ```
-3) getexhanges:
+3) getexchanges:
 ```python
-df = client.getexhanges("Commodities")
+df = client.getexchanges("Commodities")
 ```
 This will return a dataframe like this:
 ```bash
