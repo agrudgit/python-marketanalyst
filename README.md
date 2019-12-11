@@ -65,9 +65,9 @@ This will return a dataframe like this:
 7   4      US Equities
 8  26         USA ETF 
 ```
-3) getallsubcategory:
+3) getexhanges:
 ```python
-df = client.getallsubcategory("Commodities")
+df = client.getexhanges("Commodities")
 ```
 This will return a dataframe like this:
 ```bash
