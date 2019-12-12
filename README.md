@@ -125,7 +125,7 @@ df = client.getdata(["NASDAQ:AAPL"],"2012-01-01","2019-01-01","Price","EOD")
 ```
 This will return a dataframe like this:
 ```bash
-         e      s          i                v         d
+     exchange symbol    indicator         value     date
 0      NASDAQ  AAPL  D_EODCLOSE_EXT_1     58.75  2012-01-03
 1      NASDAQ  AAPL  D_EODCLOSE_EXT_1     59.06  2012-01-04
 2      NASDAQ  AAPL  D_EODCLOSE_EXT_1     59.72  2012-01-05
@@ -152,7 +152,7 @@ df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"2012-01-01","2019-01-01"
 You can provide sub indicator type like this.
 This will return a dataframe like this:
 ```bash
-        date      exchange  security open    high    low     close   volume
+        date      exchange  symbol   open    high    low     close   volume
 0     2012-01-03   NASDAQ     AAPL   58.49   58.93   58.43   58.75  75564699
 1     2012-01-04   NASDAQ     AAPL   58.57   59.24   58.47   59.06  65061108
 2     2012-01-05   NASDAQ     AAPL   59.28   59.79   58.95   59.72  67816805
