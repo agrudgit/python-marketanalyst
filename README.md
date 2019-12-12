@@ -121,7 +121,7 @@ This will return a dataframe like this:
 
 7) getdata:
 ```python
-df = client.getdata(["NASDAQ:AAPL"],"01/01/2012","01/01/2019","Price","EOD")
+df = client.getdata(["NASDAQ:AAPL"],"2012-01-01","2019-01-01","Price","EOD")
 ```
 This will return a dataframe like this:
 ```bash
@@ -143,11 +143,11 @@ This will return a dataframe like this:
 
 8) getOHLCVData:
 ```python
-df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"01/01/2012","01/01/2019")
+df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"2012-01-01","2019-01-01")
 ```
 OR 
 ```python
-df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"01/01/2012","01/01/2019","EOD")
+df = client.getOHLCVData(["NASDAQ:AAPL","NASDAQ:MSFT"],"2012-01-01","2019-01-01","EOD")
 ```
 You can provide sub indicator type like this.
 This will return a dataframe like this:
