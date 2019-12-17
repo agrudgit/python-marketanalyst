@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="marketanalyst", # Replace with your own username
-    version="0.1.1",
+    version="0.1.19",
     author="Sayanta Basu",
     author_email="sayanta@agrud.com",
     description="This is wrapper for marketanalyst api",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    install_requires=['requests','pandas','numpy'],
+    install_requires=['requests','pandas','numpy','websockets','websocket_client'],
     url="https://github.com/agrudgit/python-marketanalyst.git",
     classifiers=[
         "Programming Language :: Python :: 3",
