@@ -175,6 +175,42 @@ client.export_df(df,'excel',r"D:\some_folder\filename")
 This example is for windows.
 For now three formats are supported json,excel,csv.
 
+10) Getallusequity:
+```python
+df = client.Getallusequity()
+```
+```bash
+                                                   name     function
+0                              Agilent Technologies Inc       NYSE:A
+1                                            Alcoa Corp      NYSE:AA
+2                                          Aaron's  Inc     NYSE:AAN
+3                                Advance Auto Parts Inc     NYSE:AAP
+4                             American Assets Trust Inc     NYSE:AAT
+...                                                 ...          ...
+4753  Aesthetic Medical International Holdings Group...   NASDAQ:AIH
+4754                   Apex Technology Acquisition Corp  NASDAQ:APXT
+4755                      Broadmark Realty Capital Inc.    NYSE:BRMK
+4756                                Cabaletta Bio, Inc.  NASDAQ:CABA
+4757                                     Centogene N.V.  NASDAQ:CNTG
+
+[4758 rows x 2 columns]
+```
+11) getallindicator:
+```python
+df = client.getallindicator()
+```
+```bash
+  indicator_category_id  ...         sub_category
+0                     4  ...     Income Statement
+1                     4  ...        Balance Sheet
+2                     4  ...  Cash Flow Statement
+3                     1  ...                  EOD
+4                     1  ...            Analytics
+5                     2  ...                Daily
+
+[6 rows x 4 columns]
+```
+
 ## websocket 
 ```python
 def receive_data(data):
