@@ -8,366 +8,200 @@ import socket
 import threading
 import websocket
 import datetime
+from io import StringIO
 
 class client:
-    def __init__(self,api_key,secret_key,base_url="https://www.marketanalyst.ai"):
+    def __init__(self,base_url="http://35.184.152.222:9999"):
 
-        self.api_key = api_key
-        self.secret_key = secret_key
         self.base_url = base_url
-
-        self.N = 8
-
-        self.s = websocket.WebSocket()
-        self.s.connect("wss://marketanalyst.ai:5612")
-
-        self.df_column_name = {
-            "e":"exchange",
-            "s":"symbol",
-            "i":"indicator",
-            "v":"value",
-            "d":"date"
-        }
-
-    def onDataEvent(self,exchanges,callback):
-        if not exchanges:
-            raise ValueError("exchanges is not valid")
-        thread1 = threading.Thread(target=self.send_data, args=(exchanges,callback,))
-        thread1.start()
-    
-    def send_data(self,exchanges,callback):
-        self.s.send(str(exchanges).encode())
-        while True:
-            callback(self.s.recv())
 
     def validate_date(self,date_text):
         try:
-            datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            datetime.datetime.strptime(date_text, '%Y-%m-%d,%H:%M:%S')
         except ValueError:
-            raise ValueError("Incorrect date format, should be YYYY-MM-DD")
+            raise ValueError("Incorrect date format, should be YYYY-MM-DD,hh:mm:ss")
 
-    def Getallsecurities(self):
-        security_url = self.base_url + "/api_get_security"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(security_url, data=payload)
-        security_data = response.json()
-        if "data" not in security_data:
-            raise ValueError("api key or secret key is invalid")
-        security_data = security_data['data']
-        return pd.DataFrame.from_dict(security_data)
+    def getallsecurities(self,exchange="",security_type="",master_id="",lookup=""):
+        params = {"format":"csv"}
+        security_url = self.base_url + "/get_master"
+        if exchange:
+            params["exchange"] = exchange
+        if security_type:
+            params["security_type"] = security_type
+        if master_id:
+            params["master_id"] = master_id
+        if lookup:
+            params["lookup"] = lookup
+        response = requests.get(security_url, params=params)
+        try:
+            if "[ERROR]" in response.text:
+                raise ValueError(response.text)
+            else:
+                return pd.read_csv(StringIO(response.text))
+        except:
+            raise ValueError(response.text)
 
-    def Getallusequity(self):
-        Getallusequity_url = self.base_url + "/api_all_us_equity"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(Getallusequity_url, data=payload)
-        Getallusequity_data = response.json()
-        if "data" not in Getallusequity_data:
-            raise ValueError("api key or secret key is invalid")
-        Getallusequity_data = Getallusequity_data['data']
-        return pd.DataFrame.from_dict(Getallusequity_data)
+    def getallindicator(self,indicator="",indicator_category="",lookup=""):
+        params = {"format":"csv"}
+        getallindicator_url = self.base_url + "/get_indicator"
+        if indicator:
+            params["indicator"] = indicator
+        if indicator_category:
+            params["indicator_category"] = indicator_category
+        if lookup:
+            params["lookup"] = lookup
+        response = requests.get(getallindicator_url, params=params)
+        try:
+            if "[ERROR]" in response.text:
+                raise ValueError(response.text)
+            else:
+                return pd.read_csv(StringIO(response.text))
+        except:
+            raise ValueError(response.text)
 
-    def getallindicator(self):
-        getallindicator_url = self.base_url + "/api_all_indicator"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(getallindicator_url, data=payload)
-        getallindicator_data = response.json()
-        if "data" not in getallindicator_data:
-            raise ValueError("api key or secret key is invalid")
-        getallindicator_data = getallindicator_data['data']
-        return pd.DataFrame.from_dict(getallindicator_data)
+    def getuserportfolio(self,user):
+        params = {"user":user}
+        portfolio_url = self.base_url + "/get_user_portfolio"
+        response = requests.get(portfolio_url, params=params)
+        try:
+            return response.json()
+        except:
+            raise ValueError(response.text)
 
-    def getallcategory(self):
-        category_url = self.base_url + "/api_get_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(category_url, data=payload)
-        category_data = response.json()
-        if "data" not in category_data:
-            raise ValueError("api key or secret key is invalid")
-        category_data = category_data['data']
-        return pd.DataFrame.from_dict(category_data)
+    def getportfoliodetails(self,user,portfolio):
+        params = {"user":user,"portfolio":portfolio}
+        portfolio_url = self.base_url + "/get_portfolio_details"
+        response = requests.get(portfolio_url, params=params)
+        try:
+            return pd.DataFrame.from_dict(response.json()["portfolio_details"])
+        except:
+            raise ValueError(response.text)
 
-    def getexchanges(self,category_type):
-        if not category_type:
-            raise ValueError("category_type is not valid")
-        category_id = self.get_category_id(category_type)
-        if type(category_id) != int:
-            return category_id
-        exchange_url = self.base_url + "/api_get_exchange"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'category_id':category_id}
-        response = requests.post(exchange_url, data=payload)
-        exchange_data = response.json()
-        if "data" not in exchange_data:
-            raise ValueError("api key or secret key is invalid")
-        exchange_data = exchange_data['data']
-        return pd.DataFrame.from_dict(exchange_data)
+    def getportfoliodata(self,user,portfolio,inidicators):
+        params = {"user":user,"portfolio":portfolio,"inidicators":inidicators}
+        portfolio_url = self.base_url + "/get_portfolio_data"
+        response = requests.get(portfolio_url, params=params)
+        try:
+            return pd.DataFrame.from_dict(response.json()["security_values"])
+        except:
+            raise ValueError(response.text)
 
-    def getallportfolio(self):
-        portfolio_url = self.base_url + "/api_get_portfolio"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(portfolio_url, data=payload)
-        portfolio_data = response.json()
-        if "data" not in portfolio_data:
-            raise ValueError("api key or secret key is invalid")
-        portfolio_data = portfolio_data['data']
-        return pd.DataFrame.from_dict(portfolio_data)
+    def get_indicator_category_id(self,indicator="",indicator_category="",lookup=""):
+        params = {"format":"json"}
+        if indicator:
+            params["indicator"] = indicator
+        if indicator_category:
+            params["indicator_category"] = indicator_category
+        if lookup:
+            params["lookup"] = lookup
+        response = requests.get(self.base_url + "/get_indicator",params=params)
+        try:
+            indicator_data = response.json()
+            indicator_category_id = indicator_data[0]["indicator_category_id"]
+            return indicator_category_id
+        except:
+            raise ValueError(response.text)
 
-    def getallindicatorcategory(self):
-        indicator_url = self.base_url + "/api_get_indicator_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(indicator_url, data=payload)
-        indicator_data = response.json()
-        if "data" not in indicator_data:
-            raise ValueError("api key or secret key is invalid")
-        indicator_data = indicator_data['data']
-        return pd.DataFrame.from_dict(indicator_data)
-
-    def getallindicatorsubcategory(self,indicator_type):
-        if not indicator_type:
-            raise ValueError("indicator_type is not valid")
-        indicator_id = self.get_indicator_id(indicator_type)
-        if type(indicator_id) != int:
-            return indicator_id
-        sub_indicator_url = self.base_url + "/api_get_indicator_sub_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,"indicator_category_id":indicator_id}
-        response = requests.post(sub_indicator_url, data=payload)
-        sub_indicator_data = response.json()
-        if "data" not in sub_indicator_data:
-            raise ValueError("api key or secret key is invalid")
-        sub_indicator_data = sub_indicator_data['data']
-        return pd.DataFrame.from_dict(sub_indicator_data)
-
-    def get_indicator_id(self,indicator_type):
-        if not indicator_type:
-            raise ValueError("indicator_type is not valid")
-        indicator_category_url = self.base_url + "/api_get_indicator_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(indicator_category_url, data=payload)
-        indicator_category_data = response.json()
-        if "data" not in indicator_category_data:
-            raise ValueError("api key or secret key is invalid")
-        indicator_category_data = indicator_category_data['data']
-        for indicator in indicator_category_data:
-            if indicator["title"] == indicator_type:
-                return int(indicator["id"])
-        raise ValueError("this indicator does not exist")
-
-    def get_indicator_sub_id(self,indicator_id,sub_indicator_type):
-        if not indicator_id:
-            raise ValueError("indicator_id is not valid")
-        if not sub_indicator_type:
-            raise ValueError("sub_indicator_type is not valid")
-        sub_indicator_type_url = self.base_url + "/api_get_indicator_sub_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'indicator_category_id': indicator_id}
-        response = requests.post(sub_indicator_type_url, data=payload)
-        sub_indicator_category_data = response.json()
-        if "data" not in sub_indicator_category_data:
-            raise ValueError("api key or secret key is invalid")
-        sub_indicator_category_data = sub_indicator_category_data['data']
-        for sub_indicator in sub_indicator_category_data:
-            if sub_indicator["title"] == sub_indicator_type:
-                return int(sub_indicator["id"])
-        raise ValueError("this sub indicator does not exist")
-    
-    def get_security_id(self,security_string):
-        if not security_string:
-            raise ValueError("security_string is not valid")
-        security_url = self.base_url + "/api_get_security"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(security_url, data=payload)
-        security_data = response.json()
-        if "data" not in security_data:
-            raise ValueError("api key or secret key is invalid")
-        security_data = security_data['data']
-        for security in security_data:
-            if security["title"] == security_string:
-                return int(security["id"])
-        raise ValueError("this security does not exist")
-
-    def get_category_id(self,category_type):
-        if not category_type:
-            raise ValueError("category_type is not valid")
-        category_url = self.base_url + "/api_get_category"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        response = requests.post(category_url, data=payload)
-        category_data = response.json()
-        if "data" not in category_data:
-            raise ValueError("api key or secret key is invalid")
-        category_data = category_data["data"]
-        for category in category_data:
-            if category["title"] == category_type:
-                return int(category["id"])
-        raise ValueError("this category does not exist")
-
-    def download_data_with_category(self,category_type,exchange_type,start_date,end_date,indicator_type,sub_indicator_type):
-        self.validate_date(start_date)
-        self.validate_date(end_date)
-        start_date_object = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date_object = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+    def getdata(self,symbol,indicator,date_start,date_end,master_id="",indicator_id="",order="",no_cols=""):
+        self.validate_date(date_start)
+        self.validate_date(date_end)
+        start_date_object = datetime.datetime.strptime(date_start, '%Y-%m-%d,%H:%M:%S')
+        end_date_object = datetime.datetime.strptime(date_end, '%Y-%m-%d,%H:%M:%S')
         if end_date_object < start_date_object:
             raise ValueError("end date is before start date")
-        if not category_type:
-            raise ValueError("category_type is not valid")
-        if not exchange_type:
-            raise ValueError("exchange_type is not valid")
-        if not indicator_type:
-            raise ValueError("indicator_type is not valid")
-        if not sub_indicator_type:
-            raise ValueError("sub_indicator_type is not valid")
-        download_name = ''.join(random.choices(string.ascii_uppercase +string.digits, k = self.N))
-        indicator_id = self.get_indicator_id(indicator_type)
-        if type(indicator_id) != int:
-            return indicator_id
-        sub_indicator_id = self.get_indicator_sub_id(indicator_id,sub_indicator_type)
-        if type(sub_indicator_id) != int:
-            return sub_indicator_id
-        category_id = self.get_category_id(category_type)
-        if type(category_id) != int:
-            return category_id
-        criteria_url = self.base_url + "/api_my_download"
-        payload = {
-            "api_key":self.api_key,
-            "secret_key":self.secret_key,
-            "time_period":"{'from_date':'" + str(start_date) + "','to_date':'" + str(end_date) + "'}",
-            "download_name":download_name,
-            "indicator_category":indicator_id,
-            "indicator_sub_category":sub_indicator_id,
-            "format":"json",
-            "category":category_id,
-            "exchange":exchange_type
-        }
-        response = requests.post(criteria_url, data=payload)
-        criteria_list_url = self.base_url + "/api_criteria_list"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        criteria_list_response = requests.post(criteria_list_url, data=payload)
-        criteria_list_data = criteria_list_response.json()["data"]
-        for temp_criteria in criteria_list_data:
-            if temp_criteria["name"] == download_name:
-                criteria_id = temp_criteria["id"]
-        criteria_download_url =  self.base_url + "/api_my_criteria"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'criteria_id':criteria_id}
-        criteria_download_response = requests.post(criteria_download_url, data=payload)
-        criteria_delete_url =  self.base_url + "/api_criteria_delete"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'criteria_id':criteria_id}
-        criteria_delete_response = requests.post(criteria_delete_url, data=payload)
-        if "data" in criteria_download_response.json():
-            if criteria_download_response.json()["data"] == "Data Not found":
-                raise ValueError("data not found")
-        df = pd.DataFrame.from_dict(criteria_download_response.json())
-        for column in self.df_column_name:
+        try:
+            indicator_category_id = self.get_indicator_category_id(lookup=indicator)
+        except:
+            indicator_category_id = None
+        if indicator_category_id == None:
+            raise ValueError("did not find indicator")
+        main_symbol_object = {}
+        for temp_symbol in symbol:
+            symbol_param = {"lookup":temp_symbol.split(":")[-1],"format":"json"}
+            response = requests.get(self.base_url + "/get_master" ,params=symbol_param)
+            symbol_data = response.json()
+            for temp_symbol_data in symbol_data:
+                exchange_id = temp_symbol_data["exchange_id"]
+                security_type_id = temp_symbol_data["security_type_id"]
+                master_id = temp_symbol_data["master_id"]
+                exchange_code = temp_symbol_data["exchange_code"]
+                symbol_code = temp_symbol_data["symbol"]
+                main_symbol_object[temp_symbol] = {"exchange_id":exchange_id,"security_type_id":security_type_id,"master_id":master_id,"exchange_code":exchange_code,"symbol_code":symbol_code}
+        return_df = pd.DataFrame(columns = ['master_id',"indicator_id",'value','data_type','ts_date','ts_hour'])
+        for main_symbol in main_symbol_object:
+            params = {"exchange":main_symbol_object[main_symbol]["exchange_id"],"security_type":main_symbol_object[main_symbol]["security_type_id"],"indicator_category":indicator_category_id,"date_start":date_start,"format":"csv"}
+            params["date_end"] = date_end
+            params["master_id"] = main_symbol_object[main_symbol]["master_id"]
+            main_request = requests.get(self.base_url + "/get_data",params=params)
             try:
-                df = df.rename(columns={column: self.df_column_name[column]})
+                symbol_df = pd.read_csv(StringIO(main_request.text))
+                return_df = return_df.append(symbol_df)
             except:
-                continue
-        return df
+                pass
+        return return_df
 
-    def getdata(self,security_exchange,start_date,end_date,indicator_type,sub_indicator_type):
-        self.validate_date(start_date)
-        self.validate_date(end_date)
-        start_date_object = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date_object = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+    def getOHLCVData(self,symbol,date_start,date_end):
+        self.validate_date(date_start)
+        self.validate_date(date_end)
+        start_date_object = datetime.datetime.strptime(date_start, '%Y-%m-%d,%H:%M:%S')
+        end_date_object = datetime.datetime.strptime(date_end, '%Y-%m-%d,%H:%M:%S')
         if end_date_object < start_date_object:
             raise ValueError("end date is before start date")
-        if not security_exchange:
-            raise ValueError("security_exchange is not valid")
-        if not indicator_type:
-            raise ValueError("indicator_type is not valid")
-        if not sub_indicator_type:
-            raise ValueError("sub_indicator_type is not valid")
-        download_name = ''.join(random.choices(string.ascii_uppercase +string.digits, k = self.N))
-        indicator_id = self.get_indicator_id(indicator_type)
-        if type(indicator_id) != int:
-            return indicator_id
-        sub_indicator_id = self.get_indicator_sub_id(indicator_id,sub_indicator_type)
-        if type(sub_indicator_id) != int:
-            return sub_indicator_id
-        security_id_list = []
-        if type(security_exchange) == str:
-            security_exchange = [security_exchange]
-        for security in security_exchange:
-            security_id = self.get_security_id(security)
-            if type(security_id) != int:
-                return security_id
-            security_id_list.append(str(security_id))
-        criteria_url = self.base_url + "/api_my_download"
-        payload = {
-            "api_key":self.api_key,
-            "secret_key":self.secret_key,
-            "time_period":"{'from_date':'" + str(start_date) + "','to_date':'" + str(end_date) + "'}",
-            "download_name":download_name,
-            "security":",".join(security_id_list),
-            "indicator_category":indicator_id,
-            "indicator_sub_category":sub_indicator_id,
-            "format":"json"
-        }
-        response = requests.post(criteria_url, data=payload)
-        criteria_list_url = self.base_url + "/api_criteria_list"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key}
-        criteria_list_response = requests.post(criteria_list_url, data=payload)
-        criteria_list_data = criteria_list_response.json()["data"]
-        for temp_criteria in criteria_list_data:
-            if temp_criteria["name"] == download_name:
-                criteria_id = temp_criteria["id"]
-        criteria_download_url =  self.base_url + "/api_my_criteria"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'criteria_id':criteria_id}
-        criteria_download_response = requests.post(criteria_download_url, data=payload)
-        criteria_delete_url =  self.base_url + "/api_criteria_delete"
-        payload = {'api_key':self.api_key,'secret_key':self.secret_key,'criteria_id':criteria_id}
-        criteria_delete_response = requests.post(criteria_delete_url, data=payload)
-        if "data" in criteria_download_response.json():
-            if criteria_download_response.json()["data"] == "Data Not found":
-                raise ValueError("data not found")
-        df = pd.DataFrame.from_dict(criteria_download_response.json())
-        for column in self.df_column_name:
+        main_symbol_object = {}
+        for temp_symbol in symbol:
+            symbol_param = {"lookup":temp_symbol.split(":")[-1],"format":"json"}
+            response = requests.get(self.base_url + "/get_master" ,params=symbol_param)
+            symbol_data = response.json()
+            for temp_symbol_data in symbol_data:
+                exchange_id = temp_symbol_data["exchange_id"]
+                security_type_id = temp_symbol_data["security_type_id"]
+                master_id = temp_symbol_data["master_id"]
+                exchange_code = temp_symbol_data["exchange_code"]
+                symbol_code = temp_symbol_data["symbol"]
+                main_symbol_object[temp_symbol] = {"exchange_id":exchange_id,"security_type_id":security_type_id,"master_id":master_id,"exchange_code":exchange_code,"symbol_code":symbol_code}
+        return_df = pd.DataFrame(columns = ['datetime',"exchange",'symbol','open','high','low','close','volume'])
+        for main_symbol in main_symbol_object:
+            params = {"exchange":main_symbol_object[main_symbol]["exchange_id"],"security_type":main_symbol_object[main_symbol]["security_type_id"],"indicator_category":1,"date_start":date_start,"format":"csv"}
+            params["date_end"] = date_end
+            params["master_id"] = main_symbol_object[main_symbol]["master_id"]
+            params["indicator_id"] = "371,373,375,377,379"
+            main_request = requests.get(self.base_url + "/get_data",params=params)
             try:
-                df = df.rename(columns={column: self.df_column_name[column]})
+                return_symbol = main_symbol_object[main_symbol]["symbol_code"]
+                return_exchange = main_symbol_object[main_symbol]["exchange_code"]
+                symbol_df = pd.read_csv(StringIO(main_request.text))
+                symbol_df["new_date"] = symbol_df["ts_date"] + " " + symbol_df["ts_hour"]
+                for ticker_group_name, ticker_group_df in symbol_df.groupby("new_date"):
+                    datetime_df = ticker_group_df.copy()
+                    open_price = datetime_df[datetime_df["indicator_id"] == 377]
+                    if open_price.empty == False:
+                        open_value = open_price["value"].unique()[0]
+                    else:
+                        open_value = np.nan
+                    low_price = datetime_df[datetime_df["indicator_id"] == 375]
+                    if low_price.empty == False:
+                        low_value = low_price["value"].unique()[0]
+                    else:
+                        low_value = np.nan
+                    high_price = datetime_df[datetime_df["indicator_id"] == 373]
+                    if high_price.empty == False:
+                        high_value = high_price["value"].unique()[0]
+                    else:
+                        high_value = np.nan
+                    volume = datetime_df[datetime_df["indicator_id"] == 379]
+                    if volume.empty == False:
+                        volume_value = volume["value"].unique()[0]
+                    else:
+                        volume_value = np.nan
+                    close_price = datetime_df[datetime_df["indicator_id"] == 371]
+                    if close_price.empty == False:
+                        close_value = close_price["value"].unique()[0]
+                    else:
+                        close_value = np.nan
+                    return_entry = [datetime_df['new_date'].unique()[0],return_exchange,return_symbol,open_value,high_value,low_value,close_value,volume_value]
+                    return_df.loc[len(return_df)] = return_entry
             except:
-                continue
-        return df
-
-    def getOHLCVData(self,security_exchange,start_date,end_date,sub_indicator_type="EOD"):
-        self.validate_date(start_date)
-        self.validate_date(end_date)
-        start_date_object = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date_object = datetime.datetime.strptime(end_date, '%Y-%m-%d')
-        if end_date_object < start_date_object:
-            raise ValueError("end date is before start date")
-        if not security_exchange:
-            raise ValueError("security_exchange is not valid")
-        if not sub_indicator_type:
-            raise ValueError("sub_indicator_type is not valid")
-        df = self.getdata(security_exchange,start_date,end_date,"Price",sub_indicator_type)
-        return_df = pd.DataFrame(columns = ['date','exchange','symbol','open','high','low','close','volume'])
-        for group_name, group_df in df.groupby("symbol"):
-            ticker_df = group_df.copy()
-            for ticker_group_name, ticker_group_df in ticker_df.groupby("date"):
-                datetime_df = ticker_group_df.copy()
-                open_price = datetime_df[datetime_df["indicator"] == "D_EODOPEN_EXT_1"]
-                if open_price.empty == False:
-                    open_value = open_price["value"].unique()[0]
-                else:
-                    open_value = np.nan
-                low_price = datetime_df[datetime_df["indicator"] == "D_EODLOW_EXT_1"]
-                if low_price.empty == False:
-                    low_value = low_price["value"].unique()[0]
-                else:
-                    low_value = np.nan
-                high_price = datetime_df[datetime_df["indicator"] == "D_EODHIGH_EXT_1"]
-                if high_price.empty == False:
-                    high_value = high_price["value"].unique()[0]
-                else:
-                    high_value = np.nan
-                volume = datetime_df[datetime_df["indicator"] == "D_EODVOL_EXT_1"]
-                if volume.empty == False:
-                    volume_value = volume["value"].unique()[0]
-                else:
-                    volume_value = np.nan
-                close_price = datetime_df[datetime_df["indicator"] == "D_EODCLOSE_EXT_1"]
-                if close_price.empty == False:
-                    close_value = close_price["value"].unique()[0]
-                else:
-                    close_value = np.nan
-                return_entry = [datetime_df['date'].unique()[0],datetime_df['exchange'].unique()[0],datetime_df['symbol'].unique()[0],open_value,high_value,low_value,close_value,volume_value]
-                return_df.loc[len(return_df)] = return_entry
+                pass
         return return_df
 
     def export_df(self,df,file_format,path): # export a dataframe
@@ -382,7 +216,7 @@ class client:
             if ".xlsx" == path[-5:]:
                 df.to_excel(path, index = None, header=True)
             else:
-                df.to_csv(path + ".xlsx", index = None, header=True)
+                df.to_excel(path + ".xlsx", index = None, header=True)
         if file_format == 'json' or file_format == "JSON":
             if ".json" == path[-5:]:
                 df.to_json(path, orient='records')
