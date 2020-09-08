@@ -77,8 +77,8 @@ class client:
         except:
             raise ValueError(response.text)
 
-    def getportfoliodata(self,user,portfolio,inidicators):
-        params = {"user":user,"portfolio":portfolio,"inidicators":inidicators}
+    def getportfoliodata(self,user,portfolio,indicators):
+        params = {"user":user,"portfolio":portfolio,"indicators":indicators}
         portfolio_url = self.base_url + "/get_portfolio_data"
         response = requests.get(portfolio_url, params=params)
         try:
