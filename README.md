@@ -258,15 +258,15 @@ This will return a dataframe like this:
 8) export_df:
 With this method you can export a dataframe to a csv or excel or json as well as json data to json file.
 ```python
-client.export_df(df,'excel',r"D:\some_folder\filename")
+client.export_df(df,file_format='excel',path=r"D:\some_folder\filename")
 ```
 For JSON: 
 ```python
-client.export_df(json_data,r"D:\some_folder\filename")
+client.export_df(json_data,path=r"D:\some_folder\filename")
 ```
 OR
 ```python
-client.export_df(json_data,'json',r"D:\some_folder\filename")
+client.export_df(json_data,file_format='json',path=r"D:\some_folder\filename")
 ```
 This example is for windows.
 For now three formats are supported json,excel,csv.
