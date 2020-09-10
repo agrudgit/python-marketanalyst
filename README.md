@@ -84,7 +84,7 @@ This will return a dataframe like this:
 ```
 3) getuserportfolio:
 ```python
-df = client.getuserportfolio(11)
+df = client.getuserportfolio(user=11)
 ```
 This will return a dataframe like this:
 ```bash
@@ -155,7 +155,7 @@ This will return a dataframe like this:
 ```
 4) getportfoliodetails:
 ```python
-df = client.getportfoliodetails(11,58)
+df = client.getportfoliodetails(user=11,portfolio=58)
 ```
 This will return a dataframe like this:
 ```bash
@@ -168,7 +168,7 @@ This will return a dataframe like this:
 
 5) getportfoliodata:
 ```python
-df = client.getportfoliodata(2,67,"371,373")
+df = client.getportfoliodata(user=2,portfolio=67,indicators="371,373")
 ```
 This will return a dataframe like this:
 
@@ -256,9 +256,17 @@ This will return a dataframe like this:
 41  2020-01-31 00:00:00           1     45549  2051.47  2055.7200  2002.2700  2008.72   15567283.0
 ```
 8) export_df:
-With this method you can export a dataframe to a csv or excel.
+With this method you can export a dataframe to a csv or excel or json as well as json data to json file.
 ```python
 client.export_df(df,'excel',r"D:\some_folder\filename")
+```
+For JSON: 
+```python
+client.export_df(json_data,r"D:\some_folder\filename")
+```
+OR
+```python
+client.export_df(json_data,'json',r"D:\some_folder\filename")
 ```
 This example is for windows.
 For now three formats are supported json,excel,csv.

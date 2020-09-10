@@ -9,6 +9,7 @@ import threading
 import websocket
 import datetime
 from io import StringIO
+import json
 
 class client:
     def __init__(self,base_url="http://35.184.152.222:9999"):
@@ -59,7 +60,9 @@ class client:
         except:
             raise ValueError(response.text)
 
-    def getuserportfolio(self,user):
+    def getuserportfolio(self,user=""):
+        if user == "":
+            raise ValueError("Please provide valid user")
         params = {"user":user}
         portfolio_url = self.base_url + "/get_user_portfolio"
         response = requests.get(portfolio_url, params=params)
@@ -68,7 +71,9 @@ class client:
         except:
             raise ValueError(response.text)
 
-    def getportfoliodetails(self,user,portfolio):
+    def getportfoliodetails(self,user="",portfolio=""):
+        if user == "" or portfolio == "":
+            raise ValueError("Please provide valid user/portfolio")
         params = {"user":user,"portfolio":portfolio}
         portfolio_url = self.base_url + "/get_portfolio_details"
         response = requests.get(portfolio_url, params=params)
@@ -77,7 +82,9 @@ class client:
         except:
             raise ValueError(response.text)
 
-    def getportfoliodata(self,user,portfolio,indicators):
+    def getportfoliodata(self,user="",portfolio="",indicators=""):
+        if user == "" or portfolio == "":
+            raise ValueError("Please provide valid user/portfolio")
         params = {"user":user,"portfolio":portfolio,"indicators":indicators}
         portfolio_url = self.base_url + "/get_portfolio_data"
         response = requests.get(portfolio_url, params=params)
@@ -159,8 +166,18 @@ class client:
         except Exception as e:
             raise ValueError(e)
 
-    def export_df(self,df,file_format,path): # export a dataframe
-        if not isinstance(df, pd.DataFrame):
+    def export_df(self,df="",file_format="",path=""): # export a dataframe
+        if type(df) == dict or type(df) == list:
+            if ".json" == path[-5:]:
+                with open(path, 'w') as f:
+                    json.dump(df, f)
+            else:
+                with open(path + ".json", 'w') as f:
+                    json.dump(df, f)
+            return
+        if file_format == "" or path == "":
+            raise ValueError("Please provide valid df/file_format/path")
+        elif not isinstance(df, pd.DataFrame):
             raise ValueError("Please provide a dataframe")
         try:
             if file_format == 'csv':
