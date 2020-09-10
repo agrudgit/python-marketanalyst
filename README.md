@@ -26,7 +26,7 @@ The client is ready to use, it can be used to call the below methods.
 All of these methods will return either a string with error message or a dataframe as a success
 1) Getallsecurities:
 ```python
-df = client.getallsecurities("nasdaq","stock")
+df = client.getallsecurities(exchange="nasdaq",security_type="stock")
 ```
 OR
 ```python
