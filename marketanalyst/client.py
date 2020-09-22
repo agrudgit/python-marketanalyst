@@ -14,7 +14,7 @@ import json
 class client:
     def __init__(self,api_key='',secret_key=''):
 
-        self.base_url = 'http://35.184.152.222:9999';
+        self.base_url = 'https://api.agrudtech.com';
 
     def validate_date(self,date_text):
         try:
