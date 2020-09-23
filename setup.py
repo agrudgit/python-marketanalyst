@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="marketanalyst",
-    version="0.2.26",
+    version="0.2.27",
     author="Sayanta Basu",
     author_email="sayanta@agrud.com",
     description="This is wrapper for marketanalyst api",

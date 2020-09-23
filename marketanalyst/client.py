@@ -11,10 +11,16 @@ import datetime
 from io import StringIO
 import json
 
+import urllib3
+
+urllib3.disable_warnings()
+
 class client:
     def __init__(self,api_key='',secret_key=''):
 
-        self.base_url = 'https://api.agrudtech.com';
+        self.base_url = 'https://api.agrudtech.com'
+        self.session = requests.session()
+        self.session.verify = False
 
     def validate_date(self,date_text):
         try:
@@ -24,7 +30,7 @@ class client:
 
     def getallsecurities(self,exchange="",security_type="",master_id="",lookup=""):
         params = {"format":"csv"}
-        security_url = self.base_url + "/get_master"
+        security_url = self.base_url + "/get_master/"
         if exchange:
             params["exchange"] = exchange
         if security_type:
@@ -33,7 +39,7 @@ class client:
             params["master_id"] = master_id
         if lookup:
             params["lookup"] = lookup
-        response = requests.get(security_url, params=params)
+        response = self.session.get(security_url, params=params)
         try:
             if "[ERROR]" in response.text:
                 raise ValueError(response.text)
@@ -44,14 +50,14 @@ class client:
 
     def getallindicator(self,indicator="",indicator_category="",lookup=""):
         params = {"format":"csv"}
-        getallindicator_url = self.base_url + "/get_indicator"
+        getallindicator_url = self.base_url + "/get_indicator/"
         if indicator:
             params["indicator"] = indicator
         if indicator_category:
             params["indicator_category"] = indicator_category
         if lookup:
             params["lookup"] = lookup
-        response = requests.get(getallindicator_url, params=params)
+        response = self.session.get(getallindicator_url, params=params)
         try:
             if "[ERROR]" in response.text:
                 raise ValueError(response.text)
@@ -64,8 +70,8 @@ class client:
         if user == "":
             raise ValueError("Please provide valid user")
         params = {"user":user}
-        portfolio_url = self.base_url + "/get_user_portfolio"
-        response = requests.get(portfolio_url, params=params)
+        portfolio_url = self.base_url + "/get_user_portfolio/"
+        response = self.session.get(portfolio_url, params=params)
         try:
             return response.json()
         except:
@@ -75,8 +81,8 @@ class client:
         if user == "" or portfolio == "":
             raise ValueError("Please provide valid user/portfolio")
         params = {"user":user,"portfolio":portfolio}
-        portfolio_url = self.base_url + "/get_portfolio_details"
-        response = requests.get(portfolio_url, params=params)
+        portfolio_url = self.base_url + "/get_portfolio_details/"
+        response = self.session.get(portfolio_url, params=params)
         try:
             return pd.DataFrame.from_dict(response.json()["portfolio_details"])
         except:
@@ -86,8 +92,8 @@ class client:
         if user == "" or portfolio == "":
             raise ValueError("Please provide valid user/portfolio")
         params = {"user":user,"portfolio":portfolio,"indicators":indicators}
-        portfolio_url = self.base_url + "/get_portfolio_data"
-        response = requests.get(portfolio_url, params=params)
+        portfolio_url = self.base_url + "/get_portfolio_data/"
+        response = self.session.get(portfolio_url, params=params)
         try:
             return pd.DataFrame.from_dict(response.json()["security_values"])
         except:
@@ -120,7 +126,7 @@ class client:
             params["master_id"] = master_id
         if indicator_id:
             params["indicator_id"] = indicator_id
-        main_request = requests.get(self.base_url + "/get_data",params=params)
+        main_request = self.session.get(self.base_url + "/get_data/",params=params)
         try:
             return pd.read_csv(StringIO(main_request.text))
         except:
